@@ -2,6 +2,7 @@ from gwecc_jax.orbital_phase import mikkola, kepler
 import jax.numpy as jnp
 import jax
 
+
 def test_mikkola_kepler():
     # Test that mikkola solves Kepler's equation
     e_values = jnp.linspace(0.01, 0.9, 10)
@@ -11,7 +12,10 @@ def test_mikkola_kepler():
         for l in l_values:
             u = mikkola(e, l)
             l_reconstructed = kepler(e, u)
-            assert jnp.isclose(l, l_reconstructed, rtol=1e-6), f"Failed for e={e}, l={l}"
+            assert jnp.isclose(
+                l, l_reconstructed, rtol=1e-6
+            ), f"Failed for e={e}, l={l}"
+
 
 def test_mikkola_derivative():
     # Test that the derivative of mikkola is consistent with the derivative of kepler
@@ -28,5 +32,9 @@ def test_mikkola_derivative():
             du_de_expected = jnp.sin(u) / denom
             du_dl_expected = 1 / denom
 
-            assert jnp.isclose(du_de, du_de_expected, rtol=1e-6), f"Failed for e={e}, l={l} (du/de)"
-            assert jnp.isclose(du_dl, du_dl_expected, rtol=1e-6), f"Failed for e={e}, l={l} (du/dl)"
+            assert jnp.isclose(
+                du_de, du_de_expected, rtol=1e-6
+            ), f"Failed for e={e}, l={l} (du/de)"
+            assert jnp.isclose(
+                du_dl, du_dl_expected, rtol=1e-6
+            ), f"Failed for e={e}, l={l} (du/dl)"

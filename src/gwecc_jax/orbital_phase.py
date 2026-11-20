@@ -57,12 +57,7 @@ def mikkola(e, l):
     u1 = -fu / f1u
     u2 = -fu / (f1u + f2u * u1 / 2)
     u3 = -fu / (f1u + f2u * u2 / 2 + f3u * u2**2 / 6)
-    u4 = -fu / (
-        f1u
-        + f2u * u3 / 2
-        + f3u * u3**2 / 6
-        + f4u * u3**3 / 24
-    )
+    u4 = -fu / (f1u + f2u * u3 / 2 + f3u * u3**2 / 6 + f4u * u3**3 / 24)
 
     xi = E0 + u4
 

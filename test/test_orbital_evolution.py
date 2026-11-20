@@ -182,14 +182,14 @@ def test_γbar3_from_e_derivative():
 
 def test_evolve_orbit_consistency():
     # Test that evolve_orbit returns consistent results
-    M = 5000 # s
+    M = 5000  # s
     η = 0.25
-    t0 = 0.0 # s
+    t0 = 0.0  # s
     e0 = 0.1
-    n0 = 1e-8 # rad/s
-    l0 = 0.5 # rad
+    n0 = 1e-8  # rad/s
+    l0 = 0.5  # rad
     γ0 = 0.2
-    t = 1e6 # s
+    t = 1e6  # s
 
     n, e, l, γ = evolve_orbit(M, η, t0, e0, n0, l0, γ0, t)
 
