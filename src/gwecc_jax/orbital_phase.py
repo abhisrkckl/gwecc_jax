@@ -1,6 +1,8 @@
 import jax
 import jax.numpy as jnp
 
+from .quasi_keplerian import advance_of_periastron, angular_eccentricity
+
 
 @jax.custom_jvp
 def mikkola(e, l):
@@ -124,3 +126,23 @@ def true_anomaly_diff(e, u):
     v_l = v_u + e * su
 
     return v_l
+
+
+def orbital_phase(e, n, l, γ, M, η):
+    x = (M * n) ** (2 / 3)
+    k = advance_of_periastron(x, e, η)
+    x = (M * (1 + k) * n) ** (2 / 3)
+    k = advance_of_periastron(x, e, η)
+
+    eφ = angular_eccentricity(x, e, η)
+
+    u = mikkola(e, l)
+    v_l = true_anomaly_diff(eφ, u)
+    v = v_l + l
+
+    W = (1 + k) * v_l
+
+    φ = γ + l + W
+    ω = φ - v
+
+    return u, ω
