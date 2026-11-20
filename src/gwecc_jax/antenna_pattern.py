@@ -1,5 +1,6 @@
 import jax.numpy as jnp
 
+
 def sky_direction_uvec(ra, dec):
     λ = ra
     β = dec
@@ -8,21 +9,21 @@ def sky_direction_uvec(ra, dec):
     n2 = jnp.sin(λ) * jnp.cos(β)
     n3 = jnp.sin(β)
 
-    return (n1, n2, n3)
+    return jnp.array([n1, n2, n3])
 
 
 def gw_polarization_tensors(ra, dec):
     λ = ra
     β = dec
-    e11p = (jnp.sin(λ)^2) - (jnp.cos(λ)^2) * (jnp.sin(β)^2)
-    e21p = -jnp.sin(λ) * jnp.cos(λ) * ((jnp.sin(β)^2) + 1)
+    e11p = (jnp.sin(λ) ** 2) - (jnp.cos(λ) ** 2) * (jnp.sin(β) ** 2)
+    e21p = -jnp.sin(λ) * jnp.cos(λ) * ((jnp.sin(β) ** 2) + 1)
     e31p = jnp.cos(λ) * jnp.sin(β) * jnp.cos(β)
-    e12p = -jnp.sin(λ) * jnp.cos(λ) * ((jnp.sin(β)^2) + 1)
-    e22p = (jnp.cos(λ)^2) - (jnp.sin(λ)^2) * (jnp.sin(β)^2)
+    e12p = -jnp.sin(λ) * jnp.cos(λ) * ((jnp.sin(β) ** 2) + 1)
+    e22p = (jnp.cos(λ) ** 2) - (jnp.sin(λ) ** 2) * (jnp.sin(β) ** 2)
     e32p = jnp.sin(λ) * jnp.sin(β) * jnp.cos(β)
     e13p = jnp.cos(λ) * jnp.sin(β) * jnp.cos(β)
     e23p = jnp.sin(λ) * jnp.sin(β) * jnp.cos(β)
-    e33p = -(jnp.cos(β)^2)
+    e33p = -(jnp.cos(β) ** 2)
 
     e11c = jnp.sin(2 * λ) * jnp.sin(β)
     e21c = -jnp.cos(2 * λ) * jnp.sin(β)
@@ -45,7 +46,9 @@ def antenna_pattern(ra_gw, dec_gw, ra_psr, dec_psr):
     nhat = sky_direction_uvec(ra_gw, dec_gw)
     ep, ex = gw_polarization_tensors(ra_gw, dec_gw)
 
-    cosµ = jnp.dot(phat, nhat) / jnp.sqrt(jnp.dot(phat,phat) * jnp.dot(nhat,nhat))
+    cosµ = jnp.dot(phat, nhat)
 
     Fp = jnp.dot(phat, jnp.dot(ep, phat)) * 0.5 / (1 - cosµ)
     Fx = jnp.dot(phat, jnp.dot(ex, phat)) * 0.5 / (1 - cosµ)
+
+    return Fp, Fx, cosμ
