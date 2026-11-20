@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from interpax import CubicSpline
-from scipy.special import hyp2f1
+from jax.scipy.special import hyp2f1
 
 from importlib.resources import files
 
@@ -166,6 +166,7 @@ def lbar_from_e(e):
         * hyp2f1(124 / 2299, 15 / 19, 34 / 19, -121 * e**2 / 304)
     )
 
+
 @lbar_from_e.defjvp
 def lbar_from_e_jvp(primals, tangents):
     (e,), (e_dot,) = primals, tangents
@@ -184,6 +185,7 @@ def γbar1_from_e(e):
     return (
         coeff * e ** (18 / 19) * hyp2f1(994 / 2299, 9 / 19, 28 / 19, -121 * e**2 / 304)
     )
+
 
 @γbar1_from_e.defjvp
 def γbar1_from_e_jvp(primals, tangents):
@@ -241,6 +243,7 @@ def γbar3_from_e(e, η):
 
     return (γbar3_0 + η * γbar3_1 + η * η * γbar3_2) / e ** (6 / 19)
 
+
 def evolve_orbit(
     M,
     η,
@@ -257,7 +260,7 @@ def evolve_orbit(
 
     τ0 = τ_from_e(e0)
     κ = evolv_coeff_κ(Mch, n0, e0)
-    τ = τ0 - κ * dt 
+    τ = τ0 - κ * dt
     e = e_from_τ(τ)
     n = n_from_e(n0, e0, e)
 

@@ -1,7 +1,15 @@
 import numpy as np
 import jax
 import numdifftools as nd
-from gwecc_jax.orbital_evolution import e_from_τ, τ_from_e, n_from_e, lbar_from_e, γbar1_from_e
+from gwecc_jax.orbital_evolution import (
+    e_from_τ,
+    τ_from_e,
+    n_from_e,
+    lbar_from_e,
+    γbar1_from_e,
+    γbar2_from_e,
+    γbar3_from_e,
+)
 
 
 def test_e_from_τ_inverse():
@@ -111,6 +119,7 @@ def test_lbar_from_e_derivative():
             dlbar_de_num, dlbar_de_jax, rtol=1e-5
         ), "Numerical and JAX derivatives of lbar_from_e do not match"
 
+
 def test_γbar1_from_e_monotonicity():
     # Test that γbar1_from_e is a monotonic function of e
     e_values = np.linspace(0.01, 0.9, 100)
@@ -127,3 +136,44 @@ def test_γbar1_from_e_derivative():
         assert np.allclose(
             dγbar1_de_num, dγbar1_de_jax, rtol=1e-5
         ), "Numerical and JAX derivatives of γbar1_from_e do not match"
+
+
+def test_γbar2_from_e_monotonicity():
+    # Test that γbar2_from_e is a monotonic function of e
+    e_values = np.linspace(0.01, 0.9, 100)
+    η = 0.25  # arbitrary value for η
+    γbar2_values = γbar2_from_e(e_values, η)
+    assert np.all(np.diff(γbar2_values) > 0), "γbar2_from_e is not monotonic"
+
+
+def test_γbar2_from_e_derivative():
+    # Test that the derivative of γbar2_from_e is positive
+    e_values = np.linspace(0.01, 0.9, 10)
+    η = 0.25  # arbitrary value for η
+    for e in e_values:
+        dγbar2_de_num = nd.Gradient(lambda e: γbar2_from_e(e, η))(e)
+        dγbar2_de_jax = jax.grad(lambda e: γbar2_from_e(e, η))(e)
+        assert np.allclose(
+            dγbar2_de_num, dγbar2_de_jax, rtol=1e-5
+        ), "Numerical and JAX derivatives of γbar2_from_e do not match"
+
+
+def test_γbar3_from_e_finite():
+    # Test that γbar3_from_e is finite for e in (0, 1)
+    e_values = np.linspace(0.01, 0.9, 10)
+    η = 0.25  # arbitrary value for η
+    for e in e_values:
+        γbar3 = γbar3_from_e(e, η)
+        assert np.isfinite(γbar3), f"γbar3_from_e returned non-finite value for e={e}"
+
+
+def test_γbar3_from_e_derivative():
+    # Test that the derivative of γbar3_from_e is positive
+    e_values = np.linspace(0.01, 0.9, 10)
+    η = 0.25  # arbitrary value for η
+    for e in e_values:
+        dγbar3_de_num = nd.Gradient(lambda e: γbar3_from_e(e, η))(e)
+        dγbar3_de_jax = jax.grad(lambda e: γbar3_from_e(e, η))(e)
+        assert np.allclose(
+            dγbar3_de_num, dγbar3_de_jax, rtol=1e-5
+        ), "Numerical and JAX derivatives of γbar3_from_e do not match"
