@@ -91,3 +91,36 @@ def mikkola_jvp(primals, tangents):
 def kepler(e, u):
     """Kepler equation. Mean anomaly as a function of eccentric anomaly."""
     return u - e * jnp.sin(u)
+
+
+@jax.jit
+def true_anomaly_diff(e, u):
+    """Difference between true anomaly and eccentric anomaly
+    as a function of eccentric anomaly.
+
+    Parameters
+    ----------
+    e : array_like
+        Orbital eccentricity.
+    u : array_like
+        Eccentric anomaly (radians).
+
+    Returns
+    -------
+    array_like
+        Difference between true and eccentric anomalies (radians).
+    """
+
+    su = jnp.sin(u)
+    cu = jnp.cos(u)
+
+    beta_phi = jnp.where(
+        e > 1e-15,
+        (1 - jnp.sqrt(1 - e**2)) / e,
+        e / 2 + e**3 / 8 + e**5 / 16,
+    )
+
+    v_u = 2 * jnp.arctan2(beta_phi * su, 1 - beta_phi * cu)
+    v_l = v_u + e * su
+
+    return v_l
