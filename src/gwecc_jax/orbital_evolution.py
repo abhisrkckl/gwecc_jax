@@ -176,6 +176,7 @@ def lbar_from_e_jvp(primals, tangents):
     return lbar, dlbar_de * e_dot
 
 
+@jax.custom_jvp
 def γbar1_from_e(e):
     """Scaled periastron angle (1PN) as a function of eccentricity.
     Eq. 30b of Susobhanan+ 2020."""
@@ -183,6 +184,15 @@ def γbar1_from_e(e):
     return (
         coeff * e ** (18 / 19) * hyp2f1(994 / 2299, 9 / 19, 28 / 19, -121 * e**2 / 304)
     )
+
+@γbar1_from_e.defjvp
+def γbar1_from_e_jvp(primals, tangents):
+    (e,), (e_dot,) = primals, tangents
+
+    γbar1 = γbar1_from_e(e)
+    dγbar1_de = e ** (-1 / 19) / (121 * e**2 + 304) ** (994 / 2299)
+
+    return γbar1, dγbar1_de * e_dot
 
 
 def γbar2_from_e(e, η):

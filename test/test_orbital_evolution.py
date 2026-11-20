@@ -1,7 +1,7 @@
 import numpy as np
 import jax
 import numdifftools as nd
-from gwecc_jax.orbital_evolution import e_from_τ, τ_from_e, n_from_e, lbar_from_e
+from gwecc_jax.orbital_evolution import e_from_τ, τ_from_e, n_from_e, lbar_from_e, γbar1_from_e
 
 
 def test_e_from_τ_inverse():
@@ -110,3 +110,20 @@ def test_lbar_from_e_derivative():
         assert np.allclose(
             dlbar_de_num, dlbar_de_jax, rtol=1e-5
         ), "Numerical and JAX derivatives of lbar_from_e do not match"
+
+def test_γbar1_from_e_monotonicity():
+    # Test that γbar1_from_e is a monotonic function of e
+    e_values = np.linspace(0.01, 0.9, 100)
+    γbar1_values = γbar1_from_e(e_values)
+    assert np.all(np.diff(γbar1_values) > 0), "γbar1_from_e is not monotonic"
+
+
+def test_γbar1_from_e_derivative():
+    # Test that the derivative of γbar1_from_e is positive
+    e_values = np.linspace(0.01, 0.9, 10)
+    for e in e_values:
+        dγbar1_de_num = nd.Gradient(γbar1_from_e)(e)
+        dγbar1_de_jax = jax.grad(γbar1_from_e)(e)
+        assert np.allclose(
+            dγbar1_de_num, dγbar1_de_jax, rtol=1e-5
+        ), "Numerical and JAX derivatives of γbar1_from_e do not match"
