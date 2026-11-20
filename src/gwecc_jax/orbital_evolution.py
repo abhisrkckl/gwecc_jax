@@ -4,7 +4,10 @@ import numpy as np
 from interpax import CubicSpline
 from scipy.special import hyp2f1
 
-τs, es = np.loadtxt("GWecc.txt", delimiter=" ").T
+from importlib.resources import files
+
+data_file = files("gwecc_jax").joinpath("data", "GWecc.txt")
+τs, es = np.loadtxt(data_file, delimiter=" ").T
 
 
 def make_e_τ_funcs(τs, es):
@@ -150,6 +153,7 @@ def evolv_coeff_β3(Mch, M, n0, e0):
     )
 
 
+@jax.custom_jvp
 def lbar_from_e(e):
     """Scaled mean anomaly as a function of eccentricity.
     Eq. 30a of Susobhanan+ 2020"""
@@ -161,6 +165,15 @@ def lbar_from_e(e):
         * e ** (11 / 19)
         * hyp2f1(124 / 2299, 15 / 19, 34 / 19, -121 * e**2 / 304)
     )
+
+@lbar_from_e.defjvp
+def lbar_from_e_jvp(primals, tangents):
+    (e,), (e_dot,) = primals, tangents
+
+    lbar = lbar_from_e(e)
+    dlbar_de = e ** (11 / 19) / (121 * e**2 + 304) ** (124 / 2299)
+
+    return lbar, dlbar_de * e_dot
 
 
 def γbar1_from_e(e):
