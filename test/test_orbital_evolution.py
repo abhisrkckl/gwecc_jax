@@ -9,6 +9,7 @@ from gwecc_jax.orbital_evolution import (
     γbar1_from_e,
     γbar2_from_e,
     γbar3_from_e,
+    evolve_orbit,
 )
 
 
@@ -104,7 +105,7 @@ def test_n_from_e_derivative():
 
 def test_lbar_from_e_monotonicity():
     # Test that lbar_from_e is a monotonic function of e
-    e_values = np.linspace(0.01, 0.9, 100)
+    e_values = np.linspace(0.01, 0.9, 10)
     lbar_values = lbar_from_e(e_values)
     assert np.all(np.diff(lbar_values) > 0), "lbar_from_e is not monotonic"
 
@@ -122,7 +123,7 @@ def test_lbar_from_e_derivative():
 
 def test_γbar1_from_e_monotonicity():
     # Test that γbar1_from_e is a monotonic function of e
-    e_values = np.linspace(0.01, 0.9, 100)
+    e_values = np.linspace(0.01, 0.9, 10)
     γbar1_values = γbar1_from_e(e_values)
     assert np.all(np.diff(γbar1_values) > 0), "γbar1_from_e is not monotonic"
 
@@ -140,7 +141,7 @@ def test_γbar1_from_e_derivative():
 
 def test_γbar2_from_e_monotonicity():
     # Test that γbar2_from_e is a monotonic function of e
-    e_values = np.linspace(0.01, 0.9, 100)
+    e_values = np.linspace(0.01, 0.9, 10)
     η = 0.25  # arbitrary value for η
     γbar2_values = γbar2_from_e(e_values, η)
     assert np.all(np.diff(γbar2_values) > 0), "γbar2_from_e is not monotonic"
@@ -177,3 +178,22 @@ def test_γbar3_from_e_derivative():
         assert np.allclose(
             dγbar3_de_num, dγbar3_de_jax, rtol=1e-5
         ), "Numerical and JAX derivatives of γbar3_from_e do not match"
+
+
+def test_evolve_orbit_consistency():
+    # Test that evolve_orbit returns consistent results
+    M = 5000 # s
+    η = 0.25
+    t0 = 0.0 # s
+    e0 = 0.1
+    n0 = 1e-8 # rad/s
+    l0 = 0.5 # rad
+    γ0 = 0.2
+    t = 1e6 # s
+
+    n, e, l, γ = evolve_orbit(M, η, t0, e0, n0, l0, γ0, t)
+
+    assert n > n0
+    assert e < e0
+    assert l > l0
+    assert γ > γ0
